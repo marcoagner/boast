@@ -12,7 +12,7 @@
 ## Configuration file
 
 By default, BOAST will look for a file called `boast.toml` in the working directory but this behaviour can be changed with the `-config` flag.
-Example configuration files may be found on [./examples/config](https://github.com/marcoagner/boast/tree/master/examples/config).
+Example configuration files may be found in [the config directory](https://github.com/marcoagner/boast/tree/master/examples/config).
 
 Here's a brief description of each configuration section and its parameters:
 
