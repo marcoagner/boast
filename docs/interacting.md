@@ -3,7 +3,7 @@
 Interacting with the server is quite simple. There's a small example bash client to show
 how simple it is on
 [../examples/bash_client/client.sh](https://github.com/marcoagner/boast/blob/master/examples/bash_client/client.sh).
-Don't mind its potential lack of elegance though, it was only made to show how little
+Don't mind its potential lack of elegance though; it was only made to show how little
 preparation you need to interact with the server.
 
 All you have to do is send a GET request containing an `Authorization` header with the
@@ -44,8 +44,8 @@ can be used by protocol receivers when responding to the target application to a
 kinds of test results detection. The most useful form to use it is to send
 `cxcjyaf5wahkidrp2zvhxe6ola.example.com` in your payloads. There are other reasons for
 this, but a good one is that, by using this unique domain in your payloads, even if the
-target application is behind some firewall or whatnot and a full protocol communication
-fails (e.g. an HTTP request is blocked), you could be lucky (not uncommon) and receive
+target application is behind some firewall or whatnot and other protocol communications
+fail (e.g. an HTTP request is blocked), you could be lucky (not uncommon) and receive
 the DNS query for this unique domain in case the outbound restrictions do not apply to
 the DNS protocol and port.
 
@@ -74,12 +74,13 @@ server's
 `checkInterval` which may be too soon for your test reactions to happen and be recorded
 by the server. This is a limitation you don't have to worry if you control the server as
 you can change the configuration parameters to best suit your needs, but it is important
-to have this in mind in the case of a third-party server.
+to have this in mind in the case of using a third-party server.
 
 ## Retrieving events
 
 For retrieving events, you only need to repeat step 2 from the last section. And if some
-new event has been generated, the `events` array will be populated with it.
+new event has been generated and not expired yet, the `events` array will be populated
+with it.
 
 ```
 % curl -k -H "Authorization: Secret kkMrhv3ic2Em63PH6duIejNVRiqyOYpfBZHkjTDswBk=" https://example.com:1337/events

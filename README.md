@@ -15,10 +15,10 @@ another piece is needed. A piece that, not limited by a third-party NAT, is free
 reachable on the Internet and can also speak the received protocols in multiple ports
 for maximum impact. BOAST is this piece.
 
-For now, BOAST features DNS, HTTP, and HTTPS protocol receivers with support for
-multiple simultaneous ports for each receiver. And implementing protocol receivers for
-new protocols or to best suit your needs is almost as simple as implementing the
-protocol interaction itself.
+BOAST features DNS, HTTP, and HTTPS protocol receivers with support for multiple
+simultaneous ports for each receiver. And implementing protocol receivers for new
+protocols or to better suit your needs is almost as simple as implementing the protocol
+interaction itself.
 
 ## Documentation
 
