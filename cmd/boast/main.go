@@ -17,11 +17,11 @@ import (
 )
 
 const program = "BOAST"
-const version = "0.1.0"
+const version = "v0.1.0"
 const author = "Marco Pereira 'AGNER'"
 
 var (
-	prognver = fmt.Sprintf("%s v%s", program, version)
+	prognver = fmt.Sprintf("%s %s", program, version)
 	banner   = fmt.Sprintf("%s (by %s)\n", prognver, author)
 	cfgPath  string
 	logLevel int
