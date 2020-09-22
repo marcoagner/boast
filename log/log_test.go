@@ -73,6 +73,30 @@ func TestPrintfLogs(t *testing.T) {
 	}
 }
 
+func TestPrintLogs(t *testing.T) {
+	var buf bytes.Buffer
+
+	log.SetOutput(&buf)
+	log.SetLevel(0) // debug
+	log.Print("testing Printf logs")
+
+	got := buf.String()
+	if got == "" {
+		t.Errorf("empty log line: <log line content> (want) != \"%v\" (got)",
+			got)
+	}
+
+	buf.Reset()
+	log.SetLevel(1) // info
+	log.Print("testing Printf still logs")
+
+	got = buf.String()
+	if got == "" {
+		t.Errorf("empty log line: <log line content> (want) != \"%v\" (got)",
+			got)
+	}
+}
+
 func TestPrintlnLogs(t *testing.T) {
 	var buf bytes.Buffer
 
