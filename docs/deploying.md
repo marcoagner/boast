@@ -26,8 +26,8 @@ is paramount.
 
 ## Deploying with Docker
 
-A Dockerfile, a BOAST configuration file (`boast.toml`), and Let's Encrypt pre and post
-validation hooks can all be found [in the build
+A Dockerfile, a BOAST configuration file (`boast.toml`), and `certbot` pre validation
+and renew hooks can all be found [in the build
 directory](https://github.com/marcoagner/boast/tree/master/build). They are meant to
 work together and you must edit some parameters in the `boast.toml` file. Additionally,
 you may need to edit other files if you want a different setup.
@@ -142,34 +142,50 @@ The only thing you need to do now is run a container with the exposed ports and 
 containing the TLS files at the right container's path:
 
 ```
-$ docker run -d --name boast -p 53:53/udp -p 80:80 -p 443:443 -p 1337:1337 -p 8080:8080 -p 8443:8443 -v $PWD/tls:/go/src/agner.io/boast/tls boastimg 
+$ docker run -d --name boastmain -p 53:53/udp -p 80:80 -p 443:443 -p 1337:1337 -p 8080:8080 -p 8443:8443 \
+		-v $PWD/tls:/go/src/agner.io/boast/tls boastimg 
 ```
 
 And you can [start using it](https://github.com/marcoagner/boast/blob/master/docs/interacting.md).
 
 ### 6. Automate the certificate renewal
 
-This part of the documentation and process will be improved for better reproducibility,
-but, for now, the post validation hook script may need some editing to work on your end.
-Make sure to test it before delegating it to a certbot cron job.
+This part of the documentation will be improved for better reproducibility, but, for
+now, the renew hook script may need some editing to work on your end.  Make sure to test
+it before delegating it to a `certbot` cron job.
 
-For automating the certificate renewal process, you can use the pre and post validation
-certbot hooks found in [the build
-directory](https://github.com/marcoagner/boast/tree/master/build), put them in the right
-directories to be run by `certbot` when renewing or by using the flags
-`--manual-auth-hook` and `--post-hook` or `--manual-cleanup-hook` to run the hooks.
+For automating the certificate renewal process, you can use the `cerbot` pre validation
+and renew hooks found in [the build
+directory](https://github.com/marcoagner/boast/tree/master/build). You just have to put
+them in the right hook directories to be run by `certbot` when renewing or by using the
+flags `--manual-auth-hook` and `--renew-hook` to run the hooks non-interactively like
+this:
 
-In both cases, you just have to call `certbot` from a cron job with your preferences.
-And, to make customization easier, here's the minimum operations the pre and post
-validation hooks or alternatives should do:
+```
+certbot certonly -n --agree-tos --manual-public-ip-logging-ok --manual --preferred-challenges=dns -d *.example.com  \
+		 --manual-auth-hook $HOME/boast/build/certbot-dns-01-pre-validation-hook.sh \
+		 --renew-hook $HOME/boast/build/certbot-dns-01-renew-hook.sh
+```
+
+Using the hook directories is recommended, but, when using the flags, make sure the
+paths to the hooks are right.
+
+In both cases, you just have to run the `certbot` command from a cron job with your
+preferences and these two hooks. The hooks will only be run if a renewal is due so, with
+attention to [Let's Encrypt's rate limits](https://letsencrypt.org/docs/rate-limits/),
+it's safe to run the cron job routinely for automatic certification renewal and server
+restart with the new certificate.
+
+To make customization easier, here's the minimum operations the pre validation and renew
+hooks or alternatives should do:
 
 **Pre validation hook:**
 
-1. Stop any conflicting BOAST containers or restart it without binding to port 53.
+1. Stop any conflicting BOAST containers or restart it without binding it to port 53.
 
 2. Start a DNS-only BOAST container with the right validation TXT record.
 
-**Post validation hook:**
+**Renew hook:**
 
 1. Stop any conflicting BOAST containers.
 

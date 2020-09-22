@@ -9,18 +9,18 @@
 # Doc on how to use this with the provided Dockerfile and more:
 # https://github.com/marcoagner/boast/blob/master/docs/deploying.md#deploying-with-docker
 #
-if [ -z "$CERTBOT_DOMAIN"  ]
+if [ -z "$RENEWED_LINEAGE"  ]
 then
-	echo "error: validation is empty"
+	echo "error: renewed lineage is empty"
 	exit -1
 fi
 
 _docker_boast_img="boastimg"
 _docker_boast_container="boastmain"
 _docker_boast_dns_container="boastdns"
-_tls_certificate="/etc/letsencrypt/live/${CERTBOT_DOMAIN}/fullchain.pem"
-_tls_privkey="/etc/letsencrypt/live/${CERTBOT_DOMAIN}/privkey.pem"
-_boast_tls="$HOME/boast/tls"
+_tls_certificate="${RENEWED_LINEAGE}/fullchain.pem"
+_tls_privkey="${RENEWED_LINEAGE}/privkey.pem"
+_boast_tls="$HOME/boast/tls"  # <- Change this if necessary
 
 # Ignoring errors with `|| true` in case containers are not running or do not exist.
 
@@ -28,9 +28,11 @@ _boast_tls="$HOME/boast/tls"
 docker stop ${_docker_boast_container} || true
 docker stop ${_docker_boast_dns_container} || true
 
-# Make sure the BOAST's DNS temporary container does not exist.
+# Make sure the BOAST container does not exist.
 docker container rm ${_docker_boast_container} || true
 
+# Copy TLS files to BOAST's TLS directory.
+mkdir -p ${_boast_tls}
 cp ${_tls_certificate} ${_tls_privkey} ${_boast_tls}
 
 # Run the BOAST's main container.
