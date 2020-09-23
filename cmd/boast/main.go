@@ -131,14 +131,9 @@ func main() {
 		go httpRcv.ListenAndServe(errMain)
 	}
 
-	// This is a bit more verbose than just calling log.Fatal(<-errMain) to avoid
-	// any possibly sensitive errors being unwittingly written to a non-debug log.
-	// This trashes error information that could be useful in case of a really
-	// unexpected error, but at the same time ensures no private information will
-	// end up logged. Maybe there's a better way.
-	if exitErr := <-errMain; err != nil {
+	if exitErr := <-errMain; exitErr != nil {
 		log.Info("Fatal error")
-		log.Debug("%v", exitErr)
+		log.Debug("Error: %v", exitErr)
 		os.Exit(1)
 	}
 }
