@@ -341,6 +341,8 @@ func TestExpiration(t *testing.T) {
 	tCfg.CheckInterval = 1 * time.Millisecond
 	tStrg := storage.NewTestStorage(tCfg)
 	tStrg.SetTest(storage.TTest.Secret)
+	// sets a test meant to keep without events
+	tStrg.SetTest([]byte("2sqGqj4FQubefsqqiEksJg=="))
 
 	totalEvts := 3
 	for i := 0; i < totalEvts; i++ {
@@ -359,6 +361,7 @@ func TestExpiration(t *testing.T) {
 
 	wantTotal := 0
 	check(wantTotal, tStrg.TotalEvents())
+	check(wantTotal, tStrg.TotalTests())
 }
 
 func TestHeapPushWithWrongType(t *testing.T) {

@@ -72,8 +72,8 @@ func (s *Storage) SetTest(secret []byte) (id string, canary string, err error) {
 	defer s.mu.Unlock()
 	sum := s.unsafeHmac(secret)
 	id, canary = app.ToBase32(sum[:len(sum)/2]), app.ToBase32(sum[len(sum)/2:])
-	if u, exists := s.tests[id]; exists {
-		return u.id, u.canary, nil
+	if t, exists := s.tests[id]; exists {
+		return t.id, t.canary, nil
 	} else if s.totalTests < s.maxTests {
 		events := &eventHeap{}
 		heap.Init(events)
@@ -94,9 +94,9 @@ func (s *Storage) SetTest(secret []byte) (id string, canary string, err error) {
 func (s *Storage) SearchTest(f func(k, v string) bool) (id string, canary string) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	for id, u := range s.tests {
-		if f(id, u.canary) {
-			return id, u.canary
+	for id, t := range s.tests {
+		if f(id, t.canary) {
+			return id, t.canary
 		}
 	}
 	return "", ""
@@ -108,9 +108,9 @@ func (s *Storage) StoreEvent(evt app.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	id := evt.TestID
-	if u, exists := s.tests[id]; exists {
+	if t, exists := s.tests[id]; exists {
 		if s.cfg.MaxEvents > 0 && s.cfg.MaxEventsByTest > 0 && s.totalEvents <= s.cfg.MaxEvents {
-			if u.events.Len() >= s.cfg.MaxEventsByTest {
+			if t.events.Len() >= s.cfg.MaxEventsByTest {
 				s.unsafePopEvent(id)
 			}
 			if len(evt.Dump) > s.cfg.MaxDumpSize {
@@ -127,9 +127,9 @@ func (s *Storage) StoreEvent(evt app.Event) error {
 func (s *Storage) LoadEvents(id string) (evts []app.Event, loaded bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if u, exists := s.tests[id]; exists {
-		evts := make([]app.Event, u.events.Len())
-		copy(evts, *u.events)
+	if t, exists := s.tests[id]; exists {
+		evts := make([]app.Event, t.events.Len())
+		copy(evts, *t.events)
 		return evts, true
 	}
 	return evts, false
@@ -160,9 +160,19 @@ func (s *Storage) expire() (err error) {
 	}()
 	for range time.Tick(s.cfg.CheckInterval) {
 		s.mu.RLock()
-		for id, u := range s.tests {
+		for id, t := range s.tests {
+			if t.events.Len() == 0 {
+				s.mu.RUnlock()
+				s.mu.Lock()
+
+				s.unsafeDeleteTest(id)
+
+				s.mu.Unlock()
+				s.mu.RLock()
+				continue
+			}
 			ttl := s.cfg.TTL
-			for u.events.Len() > 0 && time.Since((*u.events)[0].Time) > ttl {
+			for t.events.Len() > 0 && time.Since((*t.events)[0].Time) > ttl {
 				s.mu.RUnlock()
 				s.mu.Lock()
 
@@ -196,8 +206,8 @@ func (s *Storage) StartExpire(ret chan error) {
 // unsafePushEvent pushes an event to an test's events leaving the mutex lock to the caller.
 // It's unsafe to be used without setting the appropriate lock externally.
 func (s *Storage) unsafePushEvent(id string, evt app.Event) {
-	if u, exists := s.tests[id]; exists {
-		heap.Push(u.events, evt)
+	if t, exists := s.tests[id]; exists {
+		heap.Push(t.events, evt)
 		s.totalEvents++
 	}
 
@@ -206,14 +216,18 @@ func (s *Storage) unsafePushEvent(id string, evt app.Event) {
 // unsafePopEvent pops an event from an test's events leaving the mutex lock to the caller.
 // It's unsafe to be used without setting the appropriate lock externally.
 func (s *Storage) unsafePopEvent(id string) {
-	if u, exists := s.tests[id]; exists {
-		heap.Pop(u.events)
+	if t, exists := s.tests[id]; exists {
+		heap.Pop(t.events)
 		s.totalEvents--
-		if u.events.Len() == 0 {
-			delete(s.tests, id)
-			s.totalTests--
+		if t.events.Len() == 0 {
+			s.unsafeDeleteTest(id)
 		}
 	}
+}
+
+func (s *Storage) unsafeDeleteTest(id string) {
+	delete(s.tests, id)
+	s.totalTests--
 }
 
 // unsafeHmac uses the storage's hmac and passed bytes to return an HMAC'd sum.
