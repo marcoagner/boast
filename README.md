@@ -13,7 +13,7 @@ testing client and, due to their nature, they will remain unseen when the client
 behind a third-party NAT. For the purpose of being able to clearly see those reactions,
 another piece is needed. A piece that, not limited by a third-party NAT, is freely
 reachable on the Internet and can also speak the received protocols in multiple ports
-for maximum impact. BOAST is this piece.
+for maximum impact. BOAST is that piece.
 
 BOAST features DNS, HTTP, and HTTPS protocol receivers with support for multiple
 simultaneous ports for each receiver. And implementing protocol receivers for new
