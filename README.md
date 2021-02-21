@@ -1,5 +1,5 @@
 # BOAST
-_The BOAST Outpost for AppSec Testing (v0.1.0)_
+_The BOAST Outpost for AppSec Testing (v0.1.1)_
 
 BOAST is a server built to receive and report Out-of-Band Application Security Testing reactions.
 
