@@ -110,7 +110,7 @@ type statusResponse struct {
 	StoredEvents int   `json:"storedEvents"`
 	RSS          int   `json:"residentSetSizeBytes"`
 	FDLen        int   `json:"openFileDescriptors"`
-	FDLimit      int64 `json:"openFileDescriptorsLimit"`
+	FDLimit      uint64 `json:"openFileDescriptorsLimit"`
 }
 
 func (res *statusResponse) Render(w http.ResponseWriter, r *http.Request) error {
