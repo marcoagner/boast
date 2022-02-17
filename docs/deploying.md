@@ -107,7 +107,7 @@ respond to the challenge. Assuming the domain is `example.com` and the hook scri
 execute permission, you may use this command:
 
 ```
-$ certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.example.com --manual-auth-hook ./build/certbot-dns-01-pre-hook.sh
+$ certbot certonly --agree-tos --manual --preferred-challenges=dns -d *.example.com -d example.com --manual-auth-hook ./build/certbot-dns-01-pre-hook.sh
 ```
 
 This command will attempt a wildcard certificate issuance from Let's Encrypt using the
