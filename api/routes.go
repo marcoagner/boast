@@ -96,21 +96,21 @@ func (env *env) status(w http.ResponseWriter, r *http.Request) {
 	check("could not access process limits", "process limits error", err)
 
 	res := &statusResponse{
-		TotalTests:  env.strg.TotalTests(),
-		TotalEvents: env.strg.TotalEvents(),
-		RSS:         stat.ResidentMemory(),
-		FDLen:       fdLen,
-		FDLimit:     limits.OpenFiles,
+		StoredTests:  env.strg.TotalTests(),
+		StoredEvents: env.strg.TotalEvents(),
+		RSS:          stat.ResidentMemory(),
+		FDLen:        fdLen,
+		FDLimit:      limits.OpenFiles,
 	}
 	render.Render(w, r, res)
 }
 
 type statusResponse struct {
-	TotalTests  int   `json:"totalTests"`
-	TotalEvents int   `json:"totalEvents"`
-	RSS         int   `json:"residentSetSizeBytes"`
-	FDLen       int   `json:"openFileDescriptors"`
-	FDLimit     int64 `json:"openFileDescriptorsLimit"`
+	StoredTests  int   `json:"storedTests"`
+	StoredEvents int   `json:"storedEvents"`
+	RSS          int   `json:"residentSetSizeBytes"`
+	FDLen        int   `json:"openFileDescriptors"`
+	FDLimit      int64 `json:"openFileDescriptorsLimit"`
 }
 
 func (res *statusResponse) Render(w http.ResponseWriter, r *http.Request) error {
